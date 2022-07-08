@@ -123,7 +123,7 @@ resource "aws_volume_attachment" "webebs_att" {
 
 resource "aws_s3_bucket" "mybucket" {
   bucket = var.bucket_name
-  region = "ap-south-1"
+  region = "us-west-2"
   acl    = "private"
 
   tags = {

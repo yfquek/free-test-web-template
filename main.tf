@@ -276,7 +276,7 @@ resource "null_resource" "replace_src" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo sed -i 's+cloudurl+https://${aws_cloudfront_distribution.mycloudfront.domain_name}/pawan.jpg+g' /var/www/html/index.html",
+      "sudo sed -i 's+cloudurl+https://${aws_cloudfront_distribution.mycloudfront.domain_name}/index.html+g' /var/www/html/index.html",
       "sudo systemctl restart httpd"
     ]
   }

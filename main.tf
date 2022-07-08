@@ -1,40 +1,40 @@
 # Variables to take user input
 variable "profile" {
-    type = string
+  type = string
 }
 
 variable "key_name" {
-    type = string
+  type = string
 }
 
 variable "instance_name" {
-    type = string
+  type = string
 }
 
 variable "ebs_name" {
-    type = string
+  type = string
 }
 
 variable "security_group_name" {
-    type = string
+  type = string
 }
 
 variable "bucket_name" {
-    type = string
+  type = string
 }
 
 # Specify provider and create infrastructure in Region US-WEST-1
 provider "aws" {
-    region = "us-west-1"
-    profile = var.profile
+  region  = "us-west-1"
+  profile = var.profile
 }
 
 # Create private key for SSH into EC2. Save it as file named "mykey.pem" and set permission to rwx
 resource "tls_private_key" "myprivatekey" {
-  algorithm   = "RSA"
+  algorithm = "RSA"
   provisioner "local-exec" {
-        command = "echo '${tls_private_key.myprivatekey.private_key_pem}' > mykey.pem && chmod 700 mykey.pem"
-    }
+    command = "echo '${tls_private_key.myprivatekey.private_key_pem}' > mykey.pem && chmod 700 mykey.pem"
+  }
 }
 
 # Create public key for SSH into EC2
@@ -78,10 +78,10 @@ resource "aws_security_group" "allow_tls" {
 
 # Create aws instance.
 resource "aws_instance" "webos" {
-  ami           = "ami-0688ba7eeeeefe3cd"
-  instance_type = "t2.micro"
-  key_name = var.key_name
-  security_groups = [ aws_security_group.allow_tls.name ]
+  ami             = "ami-0688ba7eeeeefe3cd"
+  instance_type   = "t2.micro"
+  key_name        = var.key_name
+  security_groups = [aws_security_group.allow_tls.name]
 
   tags = {
     Name = var.instance_name
@@ -93,7 +93,7 @@ resource "aws_ebs_volume" "webebs" {
   availability_zone = aws_instance.webos.availability_zone
   size              = 1
   depends_on = [
-      aws_instance.webos
+    aws_instance.webos
   ]
   tags = {
     Name = var.ebs_name
@@ -102,35 +102,35 @@ resource "aws_ebs_volume" "webebs" {
 
 # Attach the ebs to ec2 instance
 resource "aws_volume_attachment" "webebs_att" {
-    device_name = "/dev/sdh"
-    volume_id   = aws_ebs_volume.webebs.id
-    instance_id = aws_instance.webos.id
-    
-    depends_on = [
-        aws_ebs_volume.webebs
+  device_name = "/dev/sdh"
+  volume_id   = aws_ebs_volume.webebs.id
+  instance_id = aws_instance.webos.id
+
+  depends_on = [
+    aws_ebs_volume.webebs
+  ]
+  # Make connection to ec2 via SSH
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = tls_private_key.myprivatekey.private_key_pem
+    host        = aws_instance.webos.public_ip
+  }
+  # Install httpd and git
+  # Format the ebs volume and create a new partition
+  # Mount the partition on web server directory
+  # Download web code from github into webserver folder
+  # Start webserver
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt-get install httpd git -y",
+      "sudo mkfs.ext4 /dev/xvdh",
+      "sudo mount /dev/xvdh /var/www/html",
+      "sudo rm -rf /var/www/html/*",
+      "sudo git clone https://github.com/yfquek/free-test-web-template.git /var/www/html/",
+      "sudo systemctl restart httpd",
+      "sudo systemctl enable httpd"
     ]
-    # Make connection to ec2 via SSH
-    connection {
-          type = "ssh"
-          user = "ec2-user"
-          private_key = tls_private_key.myprivatekey.private_key_pem
-          host = aws_instance.webos.public_ip
-      }
-    # Install httpd and git
-    # Format the ebs volume and create a new partition
-    # Mount the partition on web server directory
-    # Download web code from github into webserver folder
-    # Start webserver
-    provisioner "remote-exec" {
-      inline = [
-          "sudo apt-get install httpd git -y",
-          "sudo mkfs.ext4 /dev/xvdh",
-          "sudo mount /dev/xvdh /var/www/html",
-          "sudo rm -rf /var/www/html/*",
-          "sudo git clone https://github.com/yfquek/free-test-web-template.git /var/www/html/",
-          "sudo systemctl restart httpd",
-          "sudo systemctl enable httpd"
-      ]
   }
 }
 
@@ -138,7 +138,6 @@ resource "aws_volume_attachment" "webebs_att" {
 resource "aws_s3_bucket" "mybucket" {
   bucket = var.bucket_name
   region = "us-west-2"
-  acl    = "private"
 
   tags = {
     Name        = var.bucket_name
@@ -146,12 +145,21 @@ resource "aws_s3_bucket" "mybucket" {
   }
 }
 
+resource "aws_s3_bucket_acl" "mybucket_acl" {
+    bucket = var.bucket_name
+    acl = "private"
+
+    depends_on = [
+    aws_s3_bucket.mybucket
+  ]
+}
+
 # Upload files into S3 bucket
 resource "aws_s3_bucket_object" "myobject" {
   bucket = var.bucket_name
   key    = "home.html"
   source = "/Users/yfquek/Documents/9x1-test-website/template/*"
-  acl = "public-read"
+  acl    = "public-read"
 
   depends_on = [
     aws_s3_bucket.mybucket
@@ -260,20 +268,20 @@ resource "null_resource" "replace_src" {
     aws_cloudfront_distribution.mycloudfront
   ]
   connection {
-          type = "ssh"
-          user = "ec2-user"
-          private_key = tls_private_key.myprivatekey.private_key_pem
-          host = aws_instance.webos.public_ip
-      }
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = tls_private_key.myprivatekey.private_key_pem
+    host        = aws_instance.webos.public_ip
+  }
 
-    provisioner "remote-exec" {
-      inline = [
-          "sudo sed -i 's+cloudurl+https://${aws_cloudfront_distribution.mycloudfront.domain_name}/pawan.jpg+g' /var/www/html/index.html",
-          "sudo systemctl restart httpd"
-      ]
-}
+  provisioner "remote-exec" {
+    inline = [
+      "sudo sed -i 's+cloudurl+https://${aws_cloudfront_distribution.mycloudfront.domain_name}/pawan.jpg+g' /var/www/html/index.html",
+      "sudo systemctl restart httpd"
+    ]
+  }
 }
 
 output "webip" {
-    value = aws_instance.webos.public_ip
+  value = aws_instance.webos.public_ip
 }

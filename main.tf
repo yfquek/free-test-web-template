@@ -282,15 +282,15 @@ resource "null_resource" "replace_src" {
   ]
   connection {
     type        = "ssh"
-    user        = "ec2-user"
+    user        = "ubuntu"
     private_key = tls_private_key.myprivatekey.private_key_pem
     host        = aws_instance.webos.public_ip
   }
 
   provisioner "remote-exec" {
     inline = [
-      "sudo sed -i 's+cloudurl+https://${aws_cloudfront_distribution.mycloudfront.domain_name}/index.html+g' /var/www/html/index.html",
-      "sudo systemctl restart httpd"
+      "sudo sed -i 's+cloudurl+https://${aws_cloudfront_distribution.mycloudfront.domain_name}/home.html+g' /var/www/html/home.html",
+      "sudo systemctl restart nginx"
     ]
   }
 }

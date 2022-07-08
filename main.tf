@@ -1,3 +1,4 @@
+# Variables to take user input
 variable "profile" {
     type = string
 }
@@ -22,11 +23,13 @@ variable "bucket_name" {
     type = string
 }
 
+# Specify provider and create infrastructure in Region US-WEST-1
 provider "aws" {
     region = "us-west-1"
     profile = var.profile
 }
 
+# Create private key for SSH into EC2. Save it as file named "mykey.pem" and set permission to rwx
 resource "tls_private_key" "myprivatekey" {
   algorithm   = "RSA"
   provisioner "local-exec" {
@@ -34,11 +37,13 @@ resource "tls_private_key" "myprivatekey" {
     }
 }
 
+# Create public key for SSH into EC2
 resource "aws_key_pair" "mykeypair" {
   key_name   = var.key_name
   public_key = tls_private_key.myprivatekey.public_key_openssh
 }
 
+# Create security group to allow connections from port 80 and 22 from 0.0.0.0/0
 resource "aws_security_group" "allow_tls" {
   name        = var.security_group_name
   description = "Allow TLS inbound traffic"
@@ -71,6 +76,7 @@ resource "aws_security_group" "allow_tls" {
   }
 }
 
+# Create aws instance.
 resource "aws_instance" "webos" {
   ami           = "ami-0688ba7eeeeefe3cd"
   instance_type = "t2.micro"
@@ -82,6 +88,7 @@ resource "aws_instance" "webos" {
   }
 }
 
+# Create ebs volume as external hard disk for persistent storage for our code.
 resource "aws_ebs_volume" "webebs" {
   availability_zone = aws_instance.webos.availability_zone
   size              = 1
@@ -92,6 +99,8 @@ resource "aws_ebs_volume" "webebs" {
     Name = var.ebs_name
   }
 }
+
+# Attach the ebs to ec2 instance
 resource "aws_volume_attachment" "webebs_att" {
     device_name = "/dev/sdh"
     volume_id   = aws_ebs_volume.webebs.id
@@ -100,14 +109,18 @@ resource "aws_volume_attachment" "webebs_att" {
     depends_on = [
         aws_ebs_volume.webebs
     ]
-
+    # Make connection to ec2 via SSH
     connection {
           type = "ssh"
           user = "ec2-user"
           private_key = tls_private_key.myprivatekey.private_key_pem
           host = aws_instance.webos.public_ip
       }
-
+    # Install httpd and git
+    # Format the ebs volume and create a new partition
+    # Mount the partition on web server directory
+    # Download web code from github into webserver folder
+    # Start webserver
     provisioner "remote-exec" {
       inline = [
           "sudo apt-get install httpd git -y",
@@ -121,6 +134,7 @@ resource "aws_volume_attachment" "webebs_att" {
   }
 }
 
+# Create private S3 bucket
 resource "aws_s3_bucket" "mybucket" {
   bucket = var.bucket_name
   region = "us-west-2"
@@ -132,6 +146,7 @@ resource "aws_s3_bucket" "mybucket" {
   }
 }
 
+# Upload files into S3 bucket
 resource "aws_s3_bucket_object" "myobject" {
   bucket = var.bucket_name
   key    = "pawan.jpg"
@@ -143,6 +158,7 @@ resource "aws_s3_bucket_object" "myobject" {
   ]
 }
 
+# Create CF distribution
 resource "aws_cloudfront_distribution" "mycloudfront" {
   depends_on = [
     aws_s3_bucket.mybucket

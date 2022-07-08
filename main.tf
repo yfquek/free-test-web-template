@@ -72,7 +72,7 @@ resource "aws_security_group" "allow_tls" {
 }
 
 resource "aws_instance" "webos" {
-  ami           = "ami-0447a12f28fddb066"
+  ami           = "ami-0688ba7eeeeefe3cd"
   instance_type = "t2.micro"
   key_name = var.key_name
   security_groups = [ aws_security_group.allow_tls.name ]

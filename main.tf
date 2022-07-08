@@ -110,7 +110,7 @@ resource "aws_volume_attachment" "webebs_att" {
 
     provisioner "remote-exec" {
       inline = [
-          "sudo yum install httpd git -y",
+          "sudo apt-get install httpd git -y",
           "sudo mkfs.ext4 /dev/xvdh",
           "sudo mount /dev/xvdh /var/www/html",
           "sudo rm -rf /var/www/html/*",

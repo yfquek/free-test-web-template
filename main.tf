@@ -112,24 +112,24 @@ resource "aws_volume_attachment" "webebs_att" {
   # Make connection to ec2 via SSH
   connection {
     type        = "ssh"
-    user        = "ec2-user"
+    user        = "ubuntu"
     private_key = tls_private_key.myprivatekey.private_key_pem
     host        = aws_instance.webos.public_ip
   }
-  # Install httpd and git
+  # Install nginx and git
   # Format the ebs volume and create a new partition
   # Mount the partition on web server directory
   # Download web code from github into webserver folder
   # Start webserver
   provisioner "remote-exec" {
     inline = [
-      "sudo apt-get install httpd git -y",
+      "sudo apt-get install nginx git -y",
       "sudo mkfs.ext4 /dev/xvdh",
       "sudo mount /dev/xvdh /var/www/html",
       "sudo rm -rf /var/www/html/*",
       "sudo git clone https://github.com/yfquek/free-test-web-template.git /var/www/html/",
-      "sudo systemctl restart httpd",
-      "sudo systemctl enable httpd"
+      "sudo systemctl restart nginx",
+      "sudo systemctl enable nginx"
     ]
   }
 }

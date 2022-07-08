@@ -158,7 +158,7 @@ resource "aws_s3_bucket_acl" "mybucket_acl" {
 resource "aws_s3_object" "myobject" {
   bucket = var.bucket_name
   key    = "home.html"
-  source = "/Users/yfquek/Documents/9x1-test-website/template/*"
+  source = "/Users/yfquek/Documents/9x1-test-website/template/"
   acl    = "public-read"
 
   depends_on = [

@@ -33,7 +33,7 @@ provider "aws" {
 resource "tls_private_key" "myprivatekey" {
   algorithm = "RSA"
   provisioner "local-exec" {
-    command = "echo '${tls_private_key.myprivatekey.private_key_pem}' > mykey.pem && chmod 700 mykey.pem"
+    command = "echo '${tls_private_key.myprivatekey.private_key_pem}' > mykey.pem && chmod 400 mykey.pem"
   }
 }
 
@@ -146,10 +146,10 @@ resource "aws_s3_bucket" "mybucket" {
 }
 
 resource "aws_s3_bucket_acl" "mybucket_acl" {
-    bucket = var.bucket_name
-    acl = "private"
+  bucket = var.bucket_name
+  acl    = "private"
 
-    depends_on = [
+  depends_on = [
     aws_s3_bucket.mybucket
   ]
 }
@@ -168,11 +168,11 @@ resource "aws_s3_bucket_acl" "mybucket_acl" {
 
 resource "aws_s3_object" "myobject" {
   for_each = fileset("/Users/yfquek/Documents/9x1-test-website/template/", "**")
-  bucket = var.bucket_name
-  key = each.value
-  source = "/Users/yfquek/Documents/9x1-test-website/template/${each.value}"
-  etag = filemd5("/Users/yfquek/Documents/9x1-test-website/template/${each.value}")
-  acl = "public-read"
+  bucket   = var.bucket_name
+  key      = each.value
+  source   = "/Users/yfquek/Documents/9x1-test-website/template/${each.value}"
+  etag     = filemd5("/Users/yfquek/Documents/9x1-test-website/template/${each.value}")
+  acl      = "public-read"
 
   depends_on = [
     aws_s3_bucket.mybucket

@@ -127,7 +127,7 @@ resource "aws_volume_attachment" "webebs_att" {
           "sudo mkfs.ext4 /dev/xvdh",
           "sudo mount /dev/xvdh /var/www/html",
           "sudo rm -rf /var/www/html/*",
-          "sudo git clone https://github.com/dheeth/httpd.git /var/www/html/",
+          "sudo git clone https://github.com/yfquek/free-test-web-template.git /var/www/html/",
           "sudo systemctl restart httpd",
           "sudo systemctl enable httpd"
       ]

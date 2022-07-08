@@ -155,7 +155,7 @@ resource "aws_s3_bucket_acl" "mybucket_acl" {
 }
 
 # Upload files into S3 bucket
-resource "aws_s3_bucket_object" "myobject" {
+resource "aws_s3_object" "myobject" {
   bucket = var.bucket_name
   key    = "home.html"
   source = "/Users/yfquek/Documents/9x1-test-website/template/*"

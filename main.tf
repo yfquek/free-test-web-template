@@ -137,7 +137,7 @@ resource "aws_volume_attachment" "webebs_att" {
 # Create private S3 bucket
 resource "aws_s3_bucket" "mybucket" {
   bucket = var.bucket_name
-  region = "us-west-2"
+  #region = "us-west-2"
 
   tags = {
     Name        = var.bucket_name

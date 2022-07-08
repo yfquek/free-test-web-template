@@ -155,11 +155,24 @@ resource "aws_s3_bucket_acl" "mybucket_acl" {
 }
 
 # Upload files into S3 bucket
+# resource "aws_s3_object" "myobject" {
+#   bucket = var.bucket_name
+#   key    = "home.html"
+#   source = "/Users/yfquek/Documents/9x1-test-website/template/"
+#   acl    = "public-read"
+
+#   depends_on = [
+#     aws_s3_bucket.mybucket
+#   ]
+# }
+
 resource "aws_s3_object" "myobject" {
+  for_each = fileset("/Users/yfquek/Documents/9x1-test-website/template/", "**")
   bucket = var.bucket_name
-  key    = "home.html"
-  source = "/Users/yfquek/Documents/9x1-test-website/template/"
-  acl    = "public-read"
+  key = each.value
+  source = "/Users/yfquek/Documents/9x1-test-website/template/${each.value}"
+  etag = filemd5("/Users/yfquek/Documents/9x1-test-website/template/${each.value}")
+  acl = "public-read"
 
   depends_on = [
     aws_s3_bucket.mybucket

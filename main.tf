@@ -23,9 +23,9 @@ variable "bucket_name" {
   type = string
 }
 
-# Specify provider and create infrastructure in Region US-WEST-1
+# Specify provider and create infrastructure in Region US-WEST-2
 provider "aws" {
-  region  = "us-west-1"
+  region  = "us-west-2"
   profile = var.profile
 }
 

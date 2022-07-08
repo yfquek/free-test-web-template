@@ -289,7 +289,7 @@ resource "null_resource" "replace_src" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo sed -i 's+cloudurl+https://${aws_cloudfront_distribution.mycloudfront.domain_name}/home.html+g' /var/www/html/home.html",
+      "sudo sed -i 's+cloudurl+https://${aws_cloudfront_distribution.mycloudfront.domain_name}/home.html+g' /var/www/html/001-test-website/template/home.html",
       "sudo systemctl restart nginx"
     ]
   }

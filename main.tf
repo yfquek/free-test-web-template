@@ -30,7 +30,7 @@ provider "aws" {
 resource "tls_private_key" "myprivatekey" {
   algorithm   = "RSA"
   provisioner "local-exec" {
-        command = "echo '${tls_private_key.myprivatekey.private_key_pem}' > mykey.pem && chmod 400 mykey.pem"
+        command = "echo '${tls_private_key.myprivatekey.private_key_pem}' > mykey.pem && chmod 700 mykey.pem"
     }
 }
 

@@ -149,8 +149,8 @@ resource "aws_s3_bucket" "mybucket" {
 # Upload files into S3 bucket
 resource "aws_s3_bucket_object" "myobject" {
   bucket = var.bucket_name
-  key    = "pawan.jpg"
-  source = "/home/dheeth/Desktop/LW/gitkube/PicsArt_10-05-09.37.09.jpg"
+  key    = "home.html"
+  source = "/Users/yfquek/Documents/9x1-test-website/template/*"
   acl = "public-read"
 
   depends_on = [
@@ -169,7 +169,7 @@ resource "aws_cloudfront_distribution" "mycloudfront" {
   }
   enabled             = true
   is_ipv6_enabled     = true
-  default_root_object = "pawan.jpg"
+  default_root_object = "home.html"
 
   logging_config {
     include_cookies = false

@@ -128,6 +128,8 @@ resource "aws_volume_attachment" "webebs_att" {
       "sudo mount /dev/xvdh /var/www/html",
       "sudo rm -rf /var/www/html/*",
       "sudo git clone https://github.com/yfquek/free-test-web-template.git /var/www/html/",
+      "sudo mv /var/www/html/free-test-web-template/* /var/www/html"
+      "sudo rm -r /var/www/html/free-test-web-template/"
       "sudo systemctl restart nginx",
       "sudo systemctl enable nginx"
     ]

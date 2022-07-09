@@ -49,7 +49,6 @@ resource "aws_security_group" "allow_tls" {
   description = "Allow TLS inbound traffic"
 
   ingress {
-    description = "TLS from VPC"
     description = "Allow HTTP"
     from_port   = 80
     to_port     = 80

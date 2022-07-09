@@ -123,13 +123,16 @@ resource "aws_volume_attachment" "webebs_att" {
   # Start webserver
   provisioner "remote-exec" {
     inline = [
+      "sudo ufw allow in 80/tcp",
+      "sudo ufw allow in 443/tcp",
+      "sudo ufw allow in 22/tcp",
       "sudo apt-get install nginx git -y",
       "sudo mkfs.ext4 /dev/xvdh",
       "sudo mount /dev/xvdh /var/www/html",
       "sudo rm -rf /var/www/html/*",
       "sudo git clone https://github.com/yfquek/free-test-web-template.git /var/www/html/",
-      "sudo mv /var/www/html/free-test-web-template/* /var/www/html"
-      "sudo rm -r /var/www/html/free-test-web-template/"
+      "sudo mv /var/www/html/free-test-web-template/* /var/www/html",
+      "sudo rm -r /var/www/html/free-test-web-template/",
       "sudo systemctl restart nginx",
       "sudo systemctl enable nginx"
     ]

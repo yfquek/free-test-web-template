@@ -50,6 +50,7 @@ resource "aws_security_group" "allow_tls" {
 
   ingress {
     description = "TLS from VPC"
+    description = "Allow HTTP"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -57,7 +58,7 @@ resource "aws_security_group" "allow_tls" {
   }
 
   ingress {
-    description = "SSH from VPC"
+    description = "Allow SSH"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
@@ -172,11 +173,11 @@ resource "aws_s3_bucket_acl" "mybucket_acl" {
 # }
 
 resource "aws_s3_object" "myobject" {
-  for_each = fileset("/Users/yfquek/Documents/9x1-test-website/template/", "**")
+  for_each = fileset("/Users/yfquek/Documents/9x1-test-website/images/", "**")
   bucket   = var.bucket_name
   key      = each.value
-  source   = "/Users/yfquek/Documents/9x1-test-website/template/${each.value}"
-  etag     = filemd5("/Users/yfquek/Documents/9x1-test-website/template/${each.value}")
+  source   = "/Users/yfquek/Documents/9x1-test-website/images/${each.value}"
+  etag     = filemd5("/Users/yfquek/Documents/9x1-test-website/images/${each.value}")
   acl      = "public-read"
 
   depends_on = [
